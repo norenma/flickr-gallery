@@ -1,0 +1,18 @@
+.detail-view {
+    position: fixed;
+    width: 100%;
+    height: 100vh;
+    background-color: rgba(255, 255, 255, 0.7);
+}
+
+.detail-view img {
+    width: auto;
+    margin-top: 10vh;
+    height: 80vh;
+}
+
+button.close {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+}
