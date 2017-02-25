@@ -1,11 +1,13 @@
 webpackJsonp([1,4],{
 
-/***/ 302:
+/***/ 334:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__coordinate_model__ = __webpack_require__(516);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(1);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return LocationService; });
+
 
 var LocationService = (function () {
     function LocationService() {
@@ -16,7 +18,10 @@ var LocationService = (function () {
     LocationService.prototype.getCurrentLocation = function () {
         return new Promise(function (resolve, reject) {
             navigator.geolocation.getCurrentPosition(function (position) {
-                resolve(position.coords);
+                var coords = new __WEBPACK_IMPORTED_MODULE_0__coordinate_model__["a" /* Coordinate */]();
+                coords.latitude = position.coords.latitude;
+                coords.longitude = position.coords.longitude;
+                resolve(coords);
             }, function (err) {
                 console.log("Can't get users location", err);
                 reject("Cant get users location");
@@ -27,7 +32,7 @@ var LocationService = (function () {
         });
     };
     LocationService = __decorate([
-        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["c" /* Injectable */])(), 
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__angular_core__["c" /* Injectable */])(), 
         __metadata('design:paramtypes', [])
     ], LocationService);
     return LocationService;
@@ -36,7 +41,7 @@ var LocationService = (function () {
 
 /***/ }),
 
-/***/ 303:
+/***/ 335:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -59,28 +64,41 @@ var Photo = (function () {
 
 /***/ }),
 
-/***/ 304:
+/***/ 336:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_http__ = __webpack_require__(284);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_toPromise__ = __webpack_require__(620);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_toPromise___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_toPromise__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__environments_environment__ = __webpack_require__(305);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__location_service__ = __webpack_require__(302);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs__ = __webpack_require__(678);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_rxjs__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_http__ = __webpack_require__(316);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_rxjs_add_operator_toPromise__ = __webpack_require__(378);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_rxjs_add_operator_toPromise___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_rxjs_add_operator_toPromise__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__environments_environment__ = __webpack_require__(337);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__location_location_service__ = __webpack_require__(334);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return PhotosService; });
 
 
 
 
 
-var FLICKR_URL = __WEBPACK_IMPORTED_MODULE_3__environments_environment__["a" /* environment */].FLICKR_URL;
-var FLICKR_API_KEY = __WEBPACK_IMPORTED_MODULE_3__environments_environment__["a" /* environment */].FLICKR_API_KEY;
+
+var FLICKR_URL = __WEBPACK_IMPORTED_MODULE_4__environments_environment__["a" /* environment */].FLICKR_URL;
+var FLICKR_API_KEY = __WEBPACK_IMPORTED_MODULE_4__environments_environment__["a" /* environment */].FLICKR_API_KEY;
+// Fallback position: Gothenburg city centre.
+var gbgLocation = {
+    'latitude': 57.708870,
+    'longitude': 11.974560,
+};
+// Error strings
+var locationError = 'Can not get your location, showing images from Gothenburg!';
+var apiError = 'Can not reach the flickr service, try again later';
 var PhotosService = (function () {
     function PhotosService(http, location) {
         this.http = http;
         this.location = location;
+        this.errorSubject = new __WEBPACK_IMPORTED_MODULE_0_rxjs__["Subject"]();
+        this.$error = this.errorSubject.asObservable();
     }
     PhotosService.prototype.getPhotos = function () {
         var _this = this;
@@ -89,36 +107,49 @@ var PhotosService = (function () {
                 _this.getPhotosAtLocation(coords).then(resolve);
             });
         });
-        //return this.getLocation().then(this.getPhotosAtLocation);
     };
     PhotosService.prototype.getLocation = function () {
-        return this.location.getCurrentLocation();
+        var _this = this;
+        return this.location.getCurrentLocation().then(function (res) {
+            console.log("got location");
+            return res;
+        }, function (err) {
+            console.log("error");
+            _this.errorSubject.next(locationError);
+            return gbgLocation;
+        });
     };
     PhotosService.prototype.getPhotosAtLocation = function (coords) {
+        console.log('#getPhotosAtLocation');
         var parameter_string = '?method=flickr.photos.search'
             + this.getQueryParameter('lat', coords.latitude)
             + this.getQueryParameter('lon', coords.longitude)
             + this.getQueryParameter('sort', 'interestingness-desc');
-        return this.postToFlickr(parameter_string).then(function (res) {
-            console.log("getPhotosAtLocation", res);
-            return res;
-        });
+        return this.postToFlickr(parameter_string);
     };
     PhotosService.prototype.postToFlickr = function (parameter_string) {
+        var _this = this;
         var url = FLICKR_URL + parameter_string;
         url = this.addQueryParameter(url, 'api_key', FLICKR_API_KEY);
         url = this.addQueryParameter(url, 'format', 'json');
-        var headers = new __WEBPACK_IMPORTED_MODULE_1__angular_http__["b" /* Headers */]({ 'content-type': 'multipart/form-data' });
-        var ops = new __WEBPACK_IMPORTED_MODULE_1__angular_http__["c" /* RequestOptions */]({ headers: headers });
+        console.log("postToFlickr");
+        var headers = new __WEBPACK_IMPORTED_MODULE_2__angular_http__["b" /* Headers */]({ 'content-type': 'multipart/form-data' });
+        var ops = new __WEBPACK_IMPORTED_MODULE_2__angular_http__["c" /* RequestOptions */]({ headers: headers });
         return this.http.post(url, {}, ops).toPromise().then(function (res) {
+            console.log("res", res);
             var photos = {};
             var jsonFlickrApi = function (response) {
-                console.log("Got response from Flickr-API with the following photos: %o", response.photos);
+                if (response.stat === 'fail') {
+                    console.log("state fail");
+                    _this.errorSubject.next(apiError);
+                }
                 photos = response.photos;
             };
             var jsonResponse = res._body;
             eval("(" + jsonResponse + ")");
             return photos;
+        }, function (err) {
+            _this.errorSubject.next(apiError);
         });
     };
     PhotosService.prototype.addQueryParameter = function (url, parameter_name, value) {
@@ -136,8 +167,8 @@ var PhotosService = (function () {
         // Handle the response here. I.E update the DOM, trigger event handlers etc.
     };
     PhotosService = __decorate([
-        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["c" /* Injectable */])(), 
-        __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1__angular_http__["d" /* Http */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__angular_http__["d" /* Http */]) === 'function' && _a) || Object, (typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_4__location_service__["a" /* LocationService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_4__location_service__["a" /* LocationService */]) === 'function' && _b) || Object])
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__angular_core__["c" /* Injectable */])(), 
+        __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_2__angular_http__["d" /* Http */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__angular_http__["d" /* Http */]) === 'function' && _a) || Object, (typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_5__location_location_service__["a" /* LocationService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_5__location_location_service__["a" /* LocationService */]) === 'function' && _b) || Object])
     ], PhotosService);
     return PhotosService;
     var _a, _b;
@@ -146,7 +177,7 @@ var PhotosService = (function () {
 
 /***/ }),
 
-/***/ 305:
+/***/ 337:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -164,7 +195,7 @@ var environment = {
 
 /***/ }),
 
-/***/ 349:
+/***/ 406:
 /***/ (function(module, exports) {
 
 function webpackEmptyContext(req) {
@@ -173,22 +204,22 @@ function webpackEmptyContext(req) {
 webpackEmptyContext.keys = function() { return []; };
 webpackEmptyContext.resolve = webpackEmptyContext;
 module.exports = webpackEmptyContext;
-webpackEmptyContext.id = 349;
+webpackEmptyContext.id = 406;
 
 
 /***/ }),
 
-/***/ 350:
+/***/ 407:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_platform_browser_dynamic__ = __webpack_require__(437);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ts_helpers__ = __webpack_require__(630);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_platform_browser_dynamic__ = __webpack_require__(494);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ts_helpers__ = __webpack_require__(950);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ts_helpers___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_ts_helpers__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__app_app_module__ = __webpack_require__(458);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__environments_environment__ = __webpack_require__(305);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__app_app_module__ = __webpack_require__(515);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__environments_environment__ = __webpack_require__(337);
 
 
 
@@ -202,11 +233,11 @@ __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__angular_platform_browser_dyna
 
 /***/ }),
 
-/***/ 457:
+/***/ 514:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return AppComponent; });
 
 var AppComponent = (function () {
@@ -216,8 +247,8 @@ var AppComponent = (function () {
     AppComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["U" /* Component */])({
             selector: 'app-root',
-            template: __webpack_require__(616),
-            styles: [__webpack_require__(612)]
+            template: __webpack_require__(674),
+            styles: [__webpack_require__(670)]
         }), 
         __metadata('design:paramtypes', [])
     ], AppComponent);
@@ -227,19 +258,20 @@ var AppComponent = (function () {
 
 /***/ }),
 
-/***/ 458:
+/***/ 515:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__shared_location_service__ = __webpack_require__(302);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__shared_photos_service__ = __webpack_require__(304);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_platform_browser__ = __webpack_require__(192);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__angular_forms__ = __webpack_require__(428);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__angular_http__ = __webpack_require__(284);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__app_component__ = __webpack_require__(457);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__photo_gallery_photo_gallery_component__ = __webpack_require__(460);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__photo_detail_photo_detail_component__ = __webpack_require__(459);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__location_location_service__ = __webpack_require__(334);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__photos_photos_service__ = __webpack_require__(336);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_platform_browser__ = __webpack_require__(217);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_core__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__angular_forms__ = __webpack_require__(485);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__angular_http__ = __webpack_require__(316);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__app_component__ = __webpack_require__(514);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__photo_gallery_photo_gallery_component__ = __webpack_require__(518);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__photo_detail_photo_detail_component__ = __webpack_require__(517);
+/* unused harmony export NoXSRFStrategy */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return AppModule; });
 
 
@@ -250,6 +282,14 @@ var AppComponent = (function () {
 
 
 
+var NoXSRFStrategy = (function () {
+    function NoXSRFStrategy() {
+    }
+    NoXSRFStrategy.prototype.configureRequest = function (req) {
+        // Remove `x-xsrf-token` from request headers
+    };
+    return NoXSRFStrategy;
+}());
 var AppModule = (function () {
     function AppModule() {
     }
@@ -258,14 +298,14 @@ var AppModule = (function () {
             declarations: [
                 __WEBPACK_IMPORTED_MODULE_6__app_component__["a" /* AppComponent */],
                 __WEBPACK_IMPORTED_MODULE_7__photo_gallery_photo_gallery_component__["a" /* PhotoGalleryComponent */],
-                __WEBPACK_IMPORTED_MODULE_8__photo_detail_photo_detail_component__["a" /* PhotoDetailComponent */]
+                __WEBPACK_IMPORTED_MODULE_8__photo_detail_photo_detail_component__["a" /* PhotoDetailComponent */],
             ],
             imports: [
                 __WEBPACK_IMPORTED_MODULE_2__angular_platform_browser__["a" /* BrowserModule */],
                 __WEBPACK_IMPORTED_MODULE_4__angular_forms__["a" /* FormsModule */],
                 __WEBPACK_IMPORTED_MODULE_5__angular_http__["a" /* HttpModule */]
             ],
-            providers: [__WEBPACK_IMPORTED_MODULE_1__shared_photos_service__["a" /* PhotosService */], __WEBPACK_IMPORTED_MODULE_0__shared_location_service__["a" /* LocationService */]],
+            providers: [__WEBPACK_IMPORTED_MODULE_1__photos_photos_service__["a" /* PhotosService */], __WEBPACK_IMPORTED_MODULE_0__location_location_service__["a" /* LocationService */]],
             bootstrap: [__WEBPACK_IMPORTED_MODULE_6__app_component__["a" /* AppComponent */]]
         }), 
         __metadata('design:paramtypes', [])
@@ -276,12 +316,26 @@ var AppModule = (function () {
 
 /***/ }),
 
-/***/ 459:
+/***/ 516:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__shared_photo_model__ = __webpack_require__(303);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(0);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Coordinate; });
+var Coordinate = (function () {
+    function Coordinate() {
+    }
+    return Coordinate;
+}());
+//# sourceMappingURL=/Users/Markus/Projects/cygni-home-task copy/src/coordinate.model.js.map
+
+/***/ }),
+
+/***/ 517:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__photos_photo_model__ = __webpack_require__(335);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(1);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return PhotoDetailComponent; });
 
 
@@ -298,7 +352,7 @@ var PhotoDetailComponent = (function () {
     };
     __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__angular_core__["w" /* Input */])(), 
-        __metadata('design:type', (typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_0__shared_photo_model__["a" /* Photo */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_0__shared_photo_model__["a" /* Photo */]) === 'function' && _a) || Object)
+        __metadata('design:type', (typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_0__photos_photo_model__["a" /* Photo */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_0__photos_photo_model__["a" /* Photo */]) === 'function' && _a) || Object)
     ], PhotoDetailComponent.prototype, "photo", void 0);
     __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__angular_core__["T" /* Output */])(), 
@@ -307,8 +361,8 @@ var PhotoDetailComponent = (function () {
     PhotoDetailComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__angular_core__["U" /* Component */])({
             selector: 'app-photo-detail',
-            template: __webpack_require__(617),
-            styles: [__webpack_require__(613)]
+            template: __webpack_require__(675),
+            styles: [__webpack_require__(671)]
         }), 
         __metadata('design:paramtypes', [])
     ], PhotoDetailComponent);
@@ -319,33 +373,59 @@ var PhotoDetailComponent = (function () {
 
 /***/ }),
 
-/***/ 460:
+/***/ 518:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__shared_photo_model__ = __webpack_require__(303);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__shared_photos_service__ = __webpack_require__(304);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__photos_photo_model__ = __webpack_require__(335);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__photos_photos_service__ = __webpack_require__(336);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return PhotoGalleryComponent; });
 
 
 
 var PhotoGalleryComponent = (function () {
     function PhotoGalleryComponent(photosService) {
+        var _this = this;
         this.photosService = photosService;
         this.photos = [];
         this.currentDetail = null;
         this.imagesLoaded = 20;
+        this.loading = false;
+        this.error = false;
+        this.errorText = "";
+        this.showError = function (error) {
+            _this.errorText = error;
+            _this.error = true;
+        };
     }
     PhotoGalleryComponent.prototype.ngOnInit = function () {
+        this.photosService.$error.subscribe(this.showError);
+        this.getImages();
+    };
+    PhotoGalleryComponent.prototype.getImages = function () {
         var _this = this;
+        this.showLoading();
         this.photosService.getPhotos().then(function (res) {
-            res.photo.forEach(function (data) {
-                var photo = new __WEBPACK_IMPORTED_MODULE_0__shared_photo_model__["a" /* Photo */]();
+            _this.createPhotos(res);
+            _this.hideLoading();
+        });
+    };
+    PhotoGalleryComponent.prototype.createPhotos = function (data) {
+        var _this = this;
+        if (data) {
+            data.photo.forEach(function (data) {
+                var photo = new __WEBPACK_IMPORTED_MODULE_0__photos_photo_model__["a" /* Photo */]();
                 photo.setUrls(data.farm, data.server, data.id, data.secret);
                 _this.photos.push(photo);
             });
-        });
+        }
+    };
+    PhotoGalleryComponent.prototype.showLoading = function () {
+        this.loading = true;
+    };
+    PhotoGalleryComponent.prototype.hideLoading = function () {
+        this.loading = false;
     };
     PhotoGalleryComponent.prototype.showDetail = function (photo) {
         this.currentDetail = photo;
@@ -353,6 +433,7 @@ var PhotoGalleryComponent = (function () {
     PhotoGalleryComponent.prototype.closeDetail = function () {
         this.currentDetail = null;
     };
+    // Detects when user has scrolled to the end of the page, template will load more images. 
     PhotoGalleryComponent.prototype.onScroll = function (event) {
         if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
             // you're at the bottom of the page
@@ -368,10 +449,10 @@ var PhotoGalleryComponent = (function () {
     PhotoGalleryComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__angular_core__["U" /* Component */])({
             selector: 'app-photo-gallery',
-            template: __webpack_require__(618),
-            styles: [__webpack_require__(614)]
+            template: __webpack_require__(676),
+            styles: [__webpack_require__(672)]
         }), 
-        __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_2__shared_photos_service__["a" /* PhotosService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__shared_photos_service__["a" /* PhotosService */]) === 'function' && _a) || Object])
+        __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_2__photos_photos_service__["a" /* PhotosService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__photos_photos_service__["a" /* PhotosService */]) === 'function' && _a) || Object])
     ], PhotoGalleryComponent);
     return PhotoGalleryComponent;
     var _a;
@@ -380,10 +461,10 @@ var PhotoGalleryComponent = (function () {
 
 /***/ }),
 
-/***/ 612:
+/***/ 670:
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(100)();
+exports = module.exports = __webpack_require__(114)();
 // imports
 
 
@@ -398,10 +479,10 @@ module.exports = module.exports.toString();
 
 /***/ }),
 
-/***/ 613:
+/***/ 671:
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(100)();
+exports = module.exports = __webpack_require__(114)();
 // imports
 
 
@@ -416,15 +497,15 @@ module.exports = module.exports.toString();
 
 /***/ }),
 
-/***/ 614:
+/***/ 672:
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(100)();
+exports = module.exports = __webpack_require__(114)();
 // imports
 
 
 // module
-exports.push([module.i, ".photo-item.loaded, .photo-item {\n    height: 240px;\n    margin-bottom: 20px;\n}\n\n\n.photo-gallery {\n    margin-top: 15vh;\n}\n\n.loading:before {\n    transform: translate3d(0, 0, 0);\n    -ms-transform: translate3d(0, 0, 0);\n    -moz-transform: translate3d(0, 0, 0);\n    -webkit-transform: translate3d(0, 0, 0);\n    -o-transform: translate3d(0, 0, 0);\n    -webkit-transition: opacity 0.5s ease-out;\n    transition: opacity 0.5s ease-out;\n    -webkit-animation: rotating 1s linear infinite;\n    animation: rotating 1s linear infinite;\n    opacity: 1;\n    top: 0;\n    left: 0;\n    bottom: 0;\n    right: 0;\n    position: absolute;\n    margin: auto;\n    color: rgba(0, 0, 0, 0.3);\n    content: \"\";\n    color: #fff;\n    background-image: url(\"data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxOC4wLjAsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KICAgdmlld0JveD0iMCAwIDI5MCAyOTAiIGVuYWJsZS1iYWNrZ3JvdW5kPSJuZXcgMCAwIDI5MCAyOTAiIHhtbDpzcGFjZT0icHJlc2VydmUiPg0KPHBhdGggZmlsbD0iI2ZmZmZmZiIgZD0iTTE0NSwyNDEuNmMtNTMuMywwLTk2LjYtNDMuMi05Ni42LTk2LjZjMC01My4zLDQzLjItOTYuNiw5Ni42LTk2LjZjNTMuMywwLDk2LjYsNDMuMiw5Ni42LDk2LjYNCiAgYzAsMjYuNy0xMC44LDUwLjktMjguMyw2OC4zbDcuNiw3LjZjMTkuNC0xOS40LDMxLjUtNDYuMywzMS41LTc1LjljMC01OS4zLTQ4LTEwNy4zLTEwNy4zLTEwNy4zUzM3LjcsODUuNywzNy43LDE0NQ0KICBjMCw1OS4zLDQ4LDEwNy4zLDEwNy4zLDEwNy4zVjI0MS42eiIvPg0KPC9zdmc+DQo=\");\n    background-size: 50px 50px;\n    height: 50px;\n    width: 50px;\n    background-repeaomt: no-repeat;\n}\n\napp-photo-detail {\n    position: fixed;\n    top: 0;\n    left: 0;\n}\n\n@keyframes rotating {\n    from {\n        -webkit-transform: rotate(0deg);\n                transform: rotate(0deg);\n    }\n    to {\n        -webkit-transform: rotate(360deg);\n                transform: rotate(360deg);\n    }\n}\n\n@-webkit-keyframes rotating {\n    from {\n        -webkit-transform: rotate(0deg);\n    }\n    to {\n        -webkit-transform: rotate(360deg);\n    }\n}", ""]);
+exports.push([module.i, ".photo-item.loaded,\n.photo-item {\n    height: 240px;\n    margin-bottom: 20px;\n}\n\n.photo-gallery {\n    margin-top: 15vh;\n}\n\n.loading-background {\n    position: fixed;\n    top: 0;\n    width: 100%;\n    height: 100vh;\n    background-color: rgba(255, 255, 255, 0.9);\n}\n\n.loading-text {\n    margin: auto;\n    text-align: center;\n    margin-top: 50vh;\n    font-size: 30px;\n    font-family: \"Brush Script MT\", cursive;\n}\n\napp-photo-detail {\n    position: fixed;\n    top: 0;\n    left: 0;\n}\n\n.error-text {\n    text-align: center;\n    color: #bb3b39;\n    font-style: italic;\n    margin-bottom: 30px;\n    font-size: 16px;\n    border: 1px solid rgba(0, 0, 0, 0.3);\n}", ""]);
 
 // exports
 
@@ -434,34 +515,34 @@ module.exports = module.exports.toString();
 
 /***/ }),
 
-/***/ 616:
+/***/ 674:
 /***/ (function(module, exports) {
 
 module.exports = "<h1>\n  Photos from your neighborhood\n</h1>\n\n<app-photo-gallery></app-photo-gallery>"
 
 /***/ }),
 
-/***/ 617:
+/***/ 675:
 /***/ (function(module, exports) {
 
-module.exports = "<div class=\"detail-view\" (click)=\"onClose()\">\n<button type=\"button\" class=\"close\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;</span></button>\n  <img class=\"center-block\" src=\"{{photo.URL_large}}\" alt=\"\">\n</div>"
+module.exports = "<div class=\"detail-view\" (click)=\"onClose()\">\n<button type=\"button\" class=\"close\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;</span></button>\n  <img class=\"center-block\" src=\"{{photo.URL_large}}\" alt=\"Loading image...\">\n</div>"
 
 /***/ }),
 
-/***/ 618:
+/***/ 676:
 /***/ (function(module, exports) {
 
-module.exports = "<div class=\"container photo-gallery\">\n  <div class=\"row\">\n    <div *ngFor=\" let photo of photos; let i = index \">\n      <div class=\"col-lg-3 col-md-4 col-sm-6 col-xs-12 photo-item\" *ngIf=\"i < imagesLoaded\">\n        <img (click)=\"showDetail(photo)\" src=\"{{photo.URL_tumb}}\" class=\"center-block \" alt=\" \">\n      </div>\n    </div>\n  </div>\n</div>\n\n<app-photo-detail [photo]=\"currentDetail\" (close)=\"closeDetail()\" *ngIf=\"currentDetail\"></app-photo-detail>"
+module.exports = "<div class=\"container photo-gallery\">\n  <!--error-text-->\n  <p class=\"error-text\" *ngIf=\"error\"> {{errorText}}\n    <p>\n      <div class=\"row\">\n        <div *ngFor=\" let photo of photos; let i = index \">\n          <div class=\"col-lg-3 col-md-4 col-sm-6 col-xs-12 photo-item\" *ngIf=\"i < imagesLoaded\">\n            <img (click)=\"showDetail(photo)\" src=\"{{photo.URL_tumb}}\" class=\"center-block \" alt=\" Loading ... \">\n          </div>\n        </div>\n      </div>\n</div>\n\n<app-photo-detail [photo]=\"currentDetail\" (close)=\"closeDetail()\" *ngIf=\"currentDetail\"></app-photo-detail>\n\n<!--loading.. -->\n<div *ngIf='loading' class=\"loading-background\">\n  <p class=\"loading-text\"> Getting photos in your area... </p>\n</div>"
 
 /***/ }),
 
-/***/ 632:
+/***/ 952:
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(350);
+module.exports = __webpack_require__(407);
 
 
 /***/ })
 
-},[632]);
+},[952]);
 //# sourceMappingURL=main.bundle.js.map
