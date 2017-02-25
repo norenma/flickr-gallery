@@ -4,7 +4,6 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
-import { ImageLazyLoadModule, WebWorkerService } from 'ng2-image-lazy-load';
 
 
 import { AppComponent } from './app.component';
@@ -20,8 +19,7 @@ import { PhotoDetailComponent } from './photo-detail/photo-detail.component';
   imports: [
     BrowserModule,
     FormsModule,
-    HttpModule,
-    ImageLazyLoadModule
+    HttpModule
   ],
   providers: [PhotosService, LocationService],
   bootstrap: [AppComponent]
