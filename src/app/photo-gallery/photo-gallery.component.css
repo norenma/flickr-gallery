@@ -1,43 +1,27 @@
-.photo-item.loaded, .photo-item {
+.photo-item.loaded,
+.photo-item {
     height: 240px;
     margin-bottom: 20px;
 }
-
 
 .photo-gallery {
     margin-top: 15vh;
 }
 
-.loading:before {
-    transform: translate3d(0, 0, 0);
-    -ms-transform: translate3d(0, 0, 0);
-    -moz-transform: translate3d(0, 0, 0);
-    -webkit-transform: translate3d(0, 0, 0);
-    -o-transform: translate3d(0, 0, 0);
-    -webkit-transition: opacity 0.5s ease-out;
-    -moz-transition: opacity 0.5s ease-out;
-    -o-transition: opacity 0.5s ease-out;
-    transition: opacity 0.5s ease-out;
-    -webkit-animation: rotating 1s linear infinite;
-    -moz-animation: rotating 1s linear infinite;
-    -ms-animation: rotating 1s linear infinite;
-    -o-animation: rotating 1s linear infinite;
-    animation: rotating 1s linear infinite;
-    opacity: 1;
+.loading-background {
+    position: fixed;
     top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-    position: absolute;
+    width: 100%;
+    height: 100vh;
+    background-color: rgba(255, 255, 255, 0.9);
+}
+
+.loading-text {
     margin: auto;
-    color: rgba(0, 0, 0, 0.3);
-    content: "";
-    color: #fff;
-    background-image: url("data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxOC4wLjAsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KICAgdmlld0JveD0iMCAwIDI5MCAyOTAiIGVuYWJsZS1iYWNrZ3JvdW5kPSJuZXcgMCAwIDI5MCAyOTAiIHhtbDpzcGFjZT0icHJlc2VydmUiPg0KPHBhdGggZmlsbD0iI2ZmZmZmZiIgZD0iTTE0NSwyNDEuNmMtNTMuMywwLTk2LjYtNDMuMi05Ni42LTk2LjZjMC01My4zLDQzLjItOTYuNiw5Ni42LTk2LjZjNTMuMywwLDk2LjYsNDMuMiw5Ni42LDk2LjYNCiAgYzAsMjYuNy0xMC44LDUwLjktMjguMyw2OC4zbDcuNiw3LjZjMTkuNC0xOS40LDMxLjUtNDYuMywzMS41LTc1LjljMC01OS4zLTQ4LTEwNy4zLTEwNy4zLTEwNy4zUzM3LjcsODUuNywzNy43LDE0NQ0KICBjMCw1OS4zLDQ4LDEwNy4zLDEwNy4zLDEwNy4zVjI0MS42eiIvPg0KPC9zdmc+DQo=");
-    background-size: 50px 50px;
-    height: 50px;
-    width: 50px;
-    background-repeaomt: no-repeat;
+    text-align: center;
+    margin-top: 50vh;
+    font-size: 30px;
+    font-family: "Brush Script MT", cursive;
 }
 
 app-photo-detail {
@@ -46,47 +30,11 @@ app-photo-detail {
     left: 0;
 }
 
-@keyframes rotating {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-@-moz-keyframes rotating {
-    from {
-        -moz-transform: rotate(0deg);
-    }
-    to {
-        -moz-transform: rotate(360deg);
-    }
-}
-
-@-ms-keyframes rotating {
-    from {
-        -ms-transform: rotate(0deg);
-    }
-    to {
-        -ms-transform: rotate(360deg);
-    }
-}
-
-@-o-keyframes rotating {
-    from {
-        -o-transform: rotate(0deg);
-    }
-    to {
-        -o-transform: rotate(360deg);
-    }
-}
-
-@-webkit-keyframes rotating {
-    from {
-        -webkit-transform: rotate(0deg);
-    }
-    to {
-        -webkit-transform: rotate(360deg);
-    }
+.error-text {
+    text-align: center;
+    color: #bb3b39;
+    font-style: italic;
+    margin-bottom: 30px;
+    font-size: 16px;
+    border: 1px solid rgba(0, 0, 0, 0.3);
 }

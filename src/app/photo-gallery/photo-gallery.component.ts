@@ -1,9 +1,8 @@
-import { Photo } from '../shared/photo.model';
+import { Photo } from '../photos/photo.model';
 import { HostListener, Component, OnInit } from '@angular/core';
 
-import { PhotosService } from '../shared/photos.service';
+import { PhotosService } from '../photos/photos.service';
 import { HttpModule } from '@angular/http';
-
 
 
 @Component({
@@ -13,32 +12,63 @@ import { HttpModule } from '@angular/http';
 })
 export class PhotoGalleryComponent implements OnInit {
 
-  photos: Array<Photo> = [];
-  currentDetail: Photo = null;
-  imagesLoaded = 20;
+  private photos: Array<Photo> = [];
+  private currentDetail: Photo = null;
+  private imagesLoaded = 20;
+
+  private loading = false;
+  private error = false;
+  private errorText = "";
 
   constructor(private photosService: PhotosService) { }
 
   ngOnInit() {
+    this.photosService.$error.subscribe(this.showError);
+    this.getImages();
+  }
+
+  private getImages() {
+    this.showLoading();
     this.photosService.getPhotos().then(res => {
-      res.photo.forEach(data => {
+      this.createPhotos(res);
+      this.hideLoading();
+    });
+  }
+
+  private createPhotos(data) {
+    if (data) {
+      data.photo.forEach(data => {
         let photo = new Photo();
         photo.setUrls(data.farm, data.server, data.id, data.secret);
         this.photos.push(photo);
       });
-    });
+    }
   }
 
-  showDetail(photo: Photo) {
+  private showLoading() {
+    this.loading = true;
+  }
+
+  private hideLoading() {
+    this.loading = false;
+  }
+
+  private showError = error => {
+    this.errorText = error;
+    this.error = true;
+  }
+
+  private showDetail(photo: Photo) {
     this.currentDetail = photo;
   }
 
-  closeDetail() {
+  private closeDetail() {
     this.currentDetail = null;
   }
 
+  // Detects when user has scrolled to the end of the page, template will load more images. 
   @HostListener('window:scroll', ['$event'])
-  onScroll(event) {
+  private onScroll(event) {
     if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
       // you're at the bottom of the page
       this.imagesLoaded += 20;

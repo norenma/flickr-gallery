@@ -1,4 +1,4 @@
-import {Photo} from '../shared/photo.model';
+import {Photo} from '../photos/photo.model';
 import {Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
 
 @Component({
