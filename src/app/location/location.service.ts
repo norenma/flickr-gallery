@@ -1,12 +1,10 @@
-import {Coordinate} from './coordinate.model';
+import { Coordinate } from './coordinate.model';
 import { Injectable } from '@angular/core';
 
 @Injectable()
 export class LocationService {
 
-  constructor() {
-
-  }
+  constructor() {}
 
   /**
    * The the user's current location. 
@@ -21,7 +19,7 @@ export class LocationService {
       }, err => {
         console.log("Can't get users location", err);
         reject("Cant get users location");
-        }, {
+      }, {
           maximumAge: 1000 * 60 * 1000,
           enableHighAccuracy: false
         });

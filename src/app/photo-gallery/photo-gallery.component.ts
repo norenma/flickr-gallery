@@ -1,8 +1,8 @@
-import { Photo } from '../photos/photo.model';
 import { HostListener, Component, OnInit } from '@angular/core';
+import { HttpModule } from '@angular/http';
 
 import { PhotosService } from '../photos/photos.service';
-import { HttpModule } from '@angular/http';
+import { Photo } from '../photos/photo.model';
 
 
 @Component({

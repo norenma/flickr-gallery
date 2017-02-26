@@ -1,7 +1,8 @@
-<div class="container photo-gallery">
+<div class="photo-gallery">
   <!--error-text-->
-  <p class="error-text" *ngIf="error"> {{errorText}}
-    <p>
+  <p class="error-text" *ngIf="error"> {{errorText}} <p>
+
+      <!--the images-->
       <div class="row">
         <div *ngFor=" let photo of photos; let i = index ">
           <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 photo-item" *ngIf="i < imagesLoaded">

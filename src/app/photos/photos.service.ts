@@ -23,7 +23,6 @@ const apiError = 'Can not reach the flickr service, try again later';
 declare var XDomainRequest;
 
 
-
 @Injectable()
 export class PhotosService {
 
@@ -40,22 +39,17 @@ export class PhotosService {
     });
   }
 
-
-
   private getLocation() {
     return this.location.getCurrentLocation().then(res => {
-      console.log("got location");
       return res;
     }, err => {
-      console.log("error");
+      // Can't get the user's location, show images from Gothenburg.
       this.errorSubject.next(locationError);
       return gbgLocation
     });
   }
 
   private getPhotosAtLocation(coords: Coordinate) {
-    console.log('#getPhotosAtLocation');
-
     let parameter_string = '?method=flickr.photos.search'
       + this.getQueryParameter('lat', coords.latitude)
       + this.getQueryParameter('lon', coords.longitude)
@@ -68,67 +62,62 @@ export class PhotosService {
     url = this.addQueryParameter(url, 'api_key', FLICKR_API_KEY);
     url = this.addQueryParameter(url, 'format', 'json');
 
-    console.log("postToFlickr");
-
     let headers = new Headers({ 'content-type': 'multipart/form-data' });
     let ops = new RequestOptions({ headers: headers });
 
-
+    // if IE9, use XDomainRequest.
     if (window['XDomainRequest']) {
-      var xdr = new XDomainRequest();
-
-      xdr.open("get", "http://example.com/api/method");
-
-      xdr.onprogress = function () {
-        //Progress
-        console.log("progg");
-        
-      };
-
-      xdr.ontimeout = function () {
-        //Timeout
-      };
-
-      xdr.onerror = function () {
-        //Error Occured
-        console.log("errrr");
-        
-      };
-
-      xdr.onload = function () {
-        //success(xdr.responseText);
-        console.log((xdr.responseText));
-
-      }
-
-      setTimeout(function () {
-        xdr.send();
-      }, 0);
+      return this.IEPostRequest(url);
     }
 
-
     return this.http.post(url, {}, ops).toPromise().then((res: any) => {
-      console.log("res", res);
+      return this.processPhotos(res._body);
+    }, this.apiError);
+  }
 
-      let photos = {};
-      let jsonFlickrApi = (response) => {
-        if (response.stat === 'fail') {
-          console.log("state fail");
+  // IE9 does not support standard XMLHttpRequest-objects to be sent to 
+  // different domains, need to use XDomainRequest-objects instead. 
+  private IEPostRequest(url, ) {
+    return new Promise((resolve, reject) => {
+      var xdr = new XDomainRequest();
+      xdr.open("post", url);
 
-          this.errorSubject.next(apiError);
-        }
-        photos = response.photos;
-      };
-      let jsonResponse = res._body;
-      eval("(" + jsonResponse + ")");
-      return photos;
-    }, err => {
-      console.log("err", err);
+      // Request failed.
+      xdr.ontimeout = this.apiError;
+      xdr.onerror = this.apiError;
 
-      this.errorSubject.next(apiError);
+      xdr.onload = () => {
+        resolve(this.processPhotos(xdr.responseText));
+      }
+
+      setTimeout(() => {
+        xdr.send();
+      });
     });
   }
 
+  // Turns data from the API into JSON.
+  private processPhotos(jsonResponse) {
+    let photos;
+    let jsonFlickrApi = this.jsonFlickrApi;
+    eval("(" + "photos =" + jsonResponse + ")");
+    return photos;
+  }
+
+  private apiError = err => {
+    this.errorSubject.next(apiError);
+  };
+
+  // This is the jsonp-function that the Flickr api sends.
+  private jsonFlickrApi = (response) => {
+    if (response.stat === 'fail') {
+      this.errorSubject.next(apiError);
+    }
+    //photos = response.photos;
+    return response.photos;
+  };
+
+  // Functions to prepare the url that is sent to the api.
   private addQueryParameter(url, parameter_name, value) {
     return url + this.getQueryParameter(parameter_name, value);
   }
@@ -136,20 +125,5 @@ export class PhotosService {
   private getQueryParameter(parameter_name, value) {
     return '&' + parameter_name + '=' + value;
   }
-
-  private extractData(res: Response) {
-    let body = res.json();
-    return body.data || {};
-  }
-
-  public jsonFlickrApi(response) {
-    console.log(
-      "Got response from Flickr-API with the following photos: %o",
-      response.photos
-    );
-    // Handle the response here. I.E update the DOM, trigger event handlers etc.
-  }
-
-
 
 }

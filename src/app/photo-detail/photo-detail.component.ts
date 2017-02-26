@@ -1,5 +1,5 @@
-import {Photo} from '../photos/photo.model';
-import {Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
+import { Photo } from '../photos/photo.model';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 
 @Component({
   selector: 'app-photo-detail',
@@ -8,15 +8,12 @@ import {Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
 })
 export class PhotoDetailComponent implements OnInit {
 
-  @Input() photo : Photo;
+  @Input() photo: Photo;
   @Output() close = new EventEmitter();
 
   constructor() { }
 
   ngOnInit() {
-    console.log("init");
-    console.log(this.photo);
-    
   }
 
   onClose() {
