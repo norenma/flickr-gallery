@@ -136,13 +136,15 @@ var PhotosService = (function () {
         var headers = new __WEBPACK_IMPORTED_MODULE_2__angular_http__["b" /* Headers */]({ 'content-type': 'multipart/form-data' });
         var ops = new __WEBPACK_IMPORTED_MODULE_2__angular_http__["c" /* RequestOptions */]({ headers: headers });
         if (window['XDomainRequest']) {
+            console.log('ye');
             var xdr = new XDomainRequest();
-            xdr.open("get", "http://example.com/api/method");
+            xdr.open("post", url);
             xdr.onprogress = function () {
                 //Progress
                 console.log("progg");
             };
             xdr.ontimeout = function () {
+                console.log('timeout');
                 //Timeout
             };
             xdr.onerror = function () {
