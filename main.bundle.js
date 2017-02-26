@@ -149,6 +149,7 @@ var PhotosService = (function () {
             eval("(" + jsonResponse + ")");
             return photos;
         }, function (err) {
+            console.log("err", err);
             _this.errorSubject.next(apiError);
         });
     };
