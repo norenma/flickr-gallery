@@ -135,6 +135,28 @@ var PhotosService = (function () {
         console.log("postToFlickr");
         var headers = new __WEBPACK_IMPORTED_MODULE_2__angular_http__["b" /* Headers */]({ 'content-type': 'multipart/form-data' });
         var ops = new __WEBPACK_IMPORTED_MODULE_2__angular_http__["c" /* RequestOptions */]({ headers: headers });
+        if (window['XDomainRequest']) {
+            var xdr = new XDomainRequest();
+            xdr.open("get", "http://example.com/api/method");
+            xdr.onprogress = function () {
+                //Progress
+                console.log("progg");
+            };
+            xdr.ontimeout = function () {
+                //Timeout
+            };
+            xdr.onerror = function () {
+                //Error Occured
+                console.log("errrr");
+            };
+            xdr.onload = function () {
+                //success(xdr.responseText);
+                console.log((xdr.responseText));
+            };
+            setTimeout(function () {
+                xdr.send();
+            }, 0);
+        }
         return this.http.post(url, {}, ops).toPromise().then(function (res) {
             console.log("res", res);
             var photos = {};
