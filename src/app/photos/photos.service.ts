@@ -20,6 +20,9 @@ const gbgLocation = {
 const locationError = 'Can not get your location, showing images from Gothenburg!';
 const apiError = 'Can not reach the flickr service, try again later';
 
+declare var XDomainRequest;
+
+
 
 @Injectable()
 export class PhotosService {
@@ -70,6 +73,40 @@ export class PhotosService {
     let headers = new Headers({ 'content-type': 'multipart/form-data' });
     let ops = new RequestOptions({ headers: headers });
 
+
+    if (window['XDomainRequest']) {
+      var xdr = new XDomainRequest();
+
+      xdr.open("get", "http://example.com/api/method");
+
+      xdr.onprogress = function () {
+        //Progress
+        console.log("progg");
+        
+      };
+
+      xdr.ontimeout = function () {
+        //Timeout
+      };
+
+      xdr.onerror = function () {
+        //Error Occured
+        console.log("errrr");
+        
+      };
+
+      xdr.onload = function () {
+        //success(xdr.responseText);
+        console.log((xdr.responseText));
+
+      }
+
+      setTimeout(function () {
+        xdr.send();
+      }, 0);
+    }
+
+
     return this.http.post(url, {}, ops).toPromise().then((res: any) => {
       console.log("res", res);
 
@@ -77,7 +114,7 @@ export class PhotosService {
       let jsonFlickrApi = (response) => {
         if (response.stat === 'fail') {
           console.log("state fail");
-          
+
           this.errorSubject.next(apiError);
         }
         photos = response.photos;
@@ -87,7 +124,7 @@ export class PhotosService {
       return photos;
     }, err => {
       console.log("err", err);
-      
+
       this.errorSubject.next(apiError);
     });
   }
