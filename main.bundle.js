@@ -4,7 +4,7 @@ webpackJsonp([1,4],{
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__coordinate_model__ = __webpack_require__(523);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__coordinate_model__ = __webpack_require__(524);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(1);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return LocationService; });
 
@@ -68,7 +68,7 @@ var Photo = (function () {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs__ = __webpack_require__(694);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs__ = __webpack_require__(695);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_rxjs__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_http__ = __webpack_require__(326);
@@ -95,10 +95,22 @@ var locationError = 'Can not get your location, showing images from Gothenburg!'
 var apiError = 'Can not reach the flickr service, try again later';
 var PhotosService = (function () {
     function PhotosService(http, location) {
+        var _this = this;
         this.http = http;
         this.location = location;
         this.errorSubject = new __WEBPACK_IMPORTED_MODULE_0_rxjs__["Subject"]();
         this.$error = this.errorSubject.asObservable();
+        this.apiError = function (err) {
+            _this.errorSubject.next(apiError);
+        };
+        // This is the jsonp-function that the Flickr api sends.
+        this.jsonFlickrApi = function (response) {
+            if (response.stat === 'fail') {
+                _this.errorSubject.next(apiError);
+            }
+            //photos = response.photos;
+            return response.photos;
+        };
     }
     PhotosService.prototype.getPhotos = function () {
         var _this = this;
@@ -111,16 +123,14 @@ var PhotosService = (function () {
     PhotosService.prototype.getLocation = function () {
         var _this = this;
         return this.location.getCurrentLocation().then(function (res) {
-            console.log("got location");
             return res;
         }, function (err) {
-            console.log("error");
+            // Can't get the user's location, show images from Gothenburg.
             _this.errorSubject.next(locationError);
             return gbgLocation;
         });
     };
     PhotosService.prototype.getPhotosAtLocation = function (coords) {
-        console.log('#getPhotosAtLocation');
         var parameter_string = '?method=flickr.photos.search'
             + this.getQueryParameter('lat', coords.latitude)
             + this.getQueryParameter('lon', coords.longitude)
@@ -132,64 +142,47 @@ var PhotosService = (function () {
         var url = FLICKR_URL + parameter_string;
         url = this.addQueryParameter(url, 'api_key', FLICKR_API_KEY);
         url = this.addQueryParameter(url, 'format', 'json');
-        console.log("postToFlickr");
         var headers = new __WEBPACK_IMPORTED_MODULE_2__angular_http__["b" /* Headers */]({ 'content-type': 'multipart/form-data' });
         var ops = new __WEBPACK_IMPORTED_MODULE_2__angular_http__["c" /* RequestOptions */]({ headers: headers });
+        // if IE9, use XDomainRequest.
         if (window['XDomainRequest']) {
-            console.log('ye');
+            return this.IEPostRequest(url);
+        }
+        return this.http.post(url, {}, ops).toPromise().then(function (res) {
+            return _this.processPhotos(res._body);
+        }, this.apiError);
+    };
+    // IE9 does not support standard XMLHttpRequest-objects to be sent to 
+    // different domains, need to use XDomainRequest-objects instead. 
+    PhotosService.prototype.IEPostRequest = function (url) {
+        var _this = this;
+        return new Promise(function (resolve, reject) {
             var xdr = new XDomainRequest();
             xdr.open("post", url);
-            xdr.onprogress = function () {
-                //Progress
-                console.log("progg");
-            };
-            xdr.ontimeout = function () {
-                console.log('timeout');
-                //Timeout
-            };
-            xdr.onerror = function () {
-                //Error Occured
-                console.log("errrr");
-            };
+            // Request failed.
+            xdr.ontimeout = _this.apiError;
+            xdr.onerror = _this.apiError;
             xdr.onload = function () {
-                //success(xdr.responseText);
-                console.log((xdr.responseText));
+                resolve(_this.processPhotos(xdr.responseText));
             };
             setTimeout(function () {
                 xdr.send();
-            }, 0);
-        }
-        return this.http.post(url, {}, ops).toPromise().then(function (res) {
-            console.log("res", res);
-            var photos = {};
-            var jsonFlickrApi = function (response) {
-                if (response.stat === 'fail') {
-                    console.log("state fail");
-                    _this.errorSubject.next(apiError);
-                }
-                photos = response.photos;
-            };
-            var jsonResponse = res._body;
-            eval("(" + jsonResponse + ")");
-            return photos;
-        }, function (err) {
-            console.log("err", err);
-            _this.errorSubject.next(apiError);
+            });
         });
     };
+    // Turns data from the API into JSON.
+    PhotosService.prototype.processPhotos = function (jsonResponse) {
+        var photos;
+        var jsonFlickrApi = this.jsonFlickrApi;
+        eval("(" + "photos =" + jsonResponse + ")");
+        return photos;
+    };
+    // Functions to prepare the url that is sent to the api.
     PhotosService.prototype.addQueryParameter = function (url, parameter_name, value) {
         return url + this.getQueryParameter(parameter_name, value);
     };
     PhotosService.prototype.getQueryParameter = function (parameter_name, value) {
         return '&' + parameter_name + '=' + value;
-    };
-    PhotosService.prototype.extractData = function (res) {
-        var body = res.json();
-        return body.data || {};
-    };
-    PhotosService.prototype.jsonFlickrApi = function (response) {
-        console.log("Got response from Flickr-API with the following photos: %o", response.photos);
-        // Handle the response here. I.E update the DOM, trigger event handlers etc.
     };
     PhotosService = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__angular_core__["c" /* Injectable */])(), 
@@ -220,7 +213,7 @@ var environment = {
 
 /***/ }),
 
-/***/ 413:
+/***/ 414:
 /***/ (function(module, exports) {
 
 function webpackEmptyContext(req) {
@@ -229,21 +222,21 @@ function webpackEmptyContext(req) {
 webpackEmptyContext.keys = function() { return []; };
 webpackEmptyContext.resolve = webpackEmptyContext;
 module.exports = webpackEmptyContext;
-webpackEmptyContext.id = 413;
+webpackEmptyContext.id = 414;
 
 
 /***/ }),
 
-/***/ 414:
+/***/ 415:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_platform_browser_dynamic__ = __webpack_require__(501);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ts_helpers__ = __webpack_require__(966);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_platform_browser_dynamic__ = __webpack_require__(502);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ts_helpers__ = __webpack_require__(967);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ts_helpers___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_ts_helpers__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__app_app_module__ = __webpack_require__(522);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__app_app_module__ = __webpack_require__(523);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__environments_environment__ = __webpack_require__(347);
 
 
@@ -258,7 +251,7 @@ __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__angular_platform_browser_dyna
 
 /***/ }),
 
-/***/ 521:
+/***/ 522:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -267,13 +260,12 @@ __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__angular_platform_browser_dyna
 
 var AppComponent = (function () {
     function AppComponent() {
-        this.title = 'app works!';
     }
     AppComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["U" /* Component */])({
             selector: 'app-root',
-            template: __webpack_require__(690),
-            styles: [__webpack_require__(686)]
+            template: __webpack_require__(691),
+            styles: [__webpack_require__(687)]
         }), 
         __metadata('design:paramtypes', [])
     ], AppComponent);
@@ -283,19 +275,19 @@ var AppComponent = (function () {
 
 /***/ }),
 
-/***/ 522:
+/***/ 523:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__location_location_service__ = __webpack_require__(344);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__photos_photos_service__ = __webpack_require__(346);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_platform_browser__ = __webpack_require__(223);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_platform_browser__ = __webpack_require__(224);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_core__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__angular_forms__ = __webpack_require__(492);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__angular_forms__ = __webpack_require__(493);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__angular_http__ = __webpack_require__(326);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__app_component__ = __webpack_require__(521);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__photo_gallery_photo_gallery_component__ = __webpack_require__(525);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__photo_detail_photo_detail_component__ = __webpack_require__(524);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__app_component__ = __webpack_require__(522);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__photo_gallery_photo_gallery_component__ = __webpack_require__(526);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__photo_detail_photo_detail_component__ = __webpack_require__(525);
 /* unused harmony export NoXSRFStrategy */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return AppModule; });
 
@@ -341,7 +333,7 @@ var AppModule = (function () {
 
 /***/ }),
 
-/***/ 523:
+/***/ 524:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -355,7 +347,7 @@ var Coordinate = (function () {
 
 /***/ }),
 
-/***/ 524:
+/***/ 525:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -369,8 +361,6 @@ var PhotoDetailComponent = (function () {
         this.close = new __WEBPACK_IMPORTED_MODULE_1__angular_core__["G" /* EventEmitter */]();
     }
     PhotoDetailComponent.prototype.ngOnInit = function () {
-        console.log("init");
-        console.log(this.photo);
     };
     PhotoDetailComponent.prototype.onClose = function () {
         this.close.emit();
@@ -386,8 +376,8 @@ var PhotoDetailComponent = (function () {
     PhotoDetailComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__angular_core__["U" /* Component */])({
             selector: 'app-photo-detail',
-            template: __webpack_require__(691),
-            styles: [__webpack_require__(687)]
+            template: __webpack_require__(692),
+            styles: [__webpack_require__(688)]
         }), 
         __metadata('design:paramtypes', [])
     ], PhotoDetailComponent);
@@ -398,13 +388,13 @@ var PhotoDetailComponent = (function () {
 
 /***/ }),
 
-/***/ 525:
+/***/ 526:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__photos_photo_model__ = __webpack_require__(345);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__photos_photos_service__ = __webpack_require__(346);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__photos_photos_service__ = __webpack_require__(346);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__photos_photo_model__ = __webpack_require__(345);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return PhotoGalleryComponent; });
 
 
@@ -440,7 +430,7 @@ var PhotoGalleryComponent = (function () {
         var _this = this;
         if (data) {
             data.photo.forEach(function (data) {
-                var photo = new __WEBPACK_IMPORTED_MODULE_0__photos_photo_model__["a" /* Photo */]();
+                var photo = new __WEBPACK_IMPORTED_MODULE_2__photos_photo_model__["a" /* Photo */]();
                 photo.setUrls(data.farm, data.server, data.id, data.secret);
                 _this.photos.push(photo);
             });
@@ -466,18 +456,18 @@ var PhotoGalleryComponent = (function () {
         }
     };
     __decorate([
-        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__angular_core__["V" /* HostListener */])('window:scroll', ['$event']), 
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["V" /* HostListener */])('window:scroll', ['$event']), 
         __metadata('design:type', Function), 
         __metadata('design:paramtypes', [Object]), 
         __metadata('design:returntype', void 0)
     ], PhotoGalleryComponent.prototype, "onScroll", null);
     PhotoGalleryComponent = __decorate([
-        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__angular_core__["U" /* Component */])({
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["U" /* Component */])({
             selector: 'app-photo-gallery',
-            template: __webpack_require__(692),
-            styles: [__webpack_require__(688)]
+            template: __webpack_require__(693),
+            styles: [__webpack_require__(689)]
         }), 
-        __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_2__photos_photos_service__["a" /* PhotosService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__photos_photos_service__["a" /* PhotosService */]) === 'function' && _a) || Object])
+        __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1__photos_photos_service__["a" /* PhotosService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__photos_photos_service__["a" /* PhotosService */]) === 'function' && _a) || Object])
     ], PhotoGalleryComponent);
     return PhotoGalleryComponent;
     var _a;
@@ -486,7 +476,7 @@ var PhotoGalleryComponent = (function () {
 
 /***/ }),
 
-/***/ 686:
+/***/ 687:
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(121)();
@@ -504,7 +494,7 @@ module.exports = module.exports.toString();
 
 /***/ }),
 
-/***/ 687:
+/***/ 688:
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(121)();
@@ -522,7 +512,7 @@ module.exports = module.exports.toString();
 
 /***/ }),
 
-/***/ 688:
+/***/ 689:
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(121)();
@@ -530,7 +520,7 @@ exports = module.exports = __webpack_require__(121)();
 
 
 // module
-exports.push([module.i, ".photo-item.loaded,\n.photo-item {\n    height: 240px;\n    margin-bottom: 20px;\n}\n\n.photo-gallery {\n    margin-top: 15vh;\n}\n\n.loading-background {\n    position: fixed;\n    top: 0;\n    width: 100%;\n    height: 100vh;\n    background-color: rgba(255, 255, 255, 0.9);\n}\n\n.loading-text {\n    margin: auto;\n    text-align: center;\n    margin-top: 50vh;\n    font-size: 30px;\n    font-family: \"Brush Script MT\", cursive;\n}\n\napp-photo-detail {\n    position: fixed;\n    top: 0;\n    left: 0;\n}\n\n.error-text {\n    text-align: center;\n    color: #bb3b39;\n    font-style: italic;\n    margin-bottom: 30px;\n    font-size: 16px;\n    border: 1px solid rgba(0, 0, 0, 0.3);\n}", ""]);
+exports.push([module.i, ".photo-item.loaded,\n.photo-item {\n    height: 240px;\n    margin-bottom: 20px;\n}\n\n.photo-gallery {\n    margin-top: 15vh;\n}\n\n.loading-background {\n    position: fixed;\n    top: 0;\n    width: 100%;\n    height: 100vh;\n    background-color: rgba(255, 255, 255, 1);\n}\n\n.loading-text {\n    margin: auto;\n    text-align: center;\n    margin-top: 50vh;\n    font-size: 30px;\n    font-family: \"Brush Script MT\", cursive;\n}\n\napp-photo-detail {\n    position: fixed;\n    top: 0;\n    left: 0;\n}\n\n.error-text {\n    text-align: center;\n    color: #bb3b39;\n    font-style: italic;\n    margin-bottom: 30px;\n    font-size: 16px;\n    border: 1px solid rgba(0, 0, 0, 0.3);\n}", ""]);
 
 // exports
 
@@ -540,34 +530,34 @@ module.exports = module.exports.toString();
 
 /***/ }),
 
-/***/ 690:
-/***/ (function(module, exports) {
-
-module.exports = "<h1>\n  Photos from your neighborhood\n</h1>\n\n<app-photo-gallery></app-photo-gallery>"
-
-/***/ }),
-
 /***/ 691:
 /***/ (function(module, exports) {
 
-module.exports = "<div class=\"detail-view\" (click)=\"onClose()\">\n<button type=\"button\" class=\"close\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;</span></button>\n  <img class=\"center-block\" src=\"{{photo.URL_large}}\" alt=\"Loading image...\">\n</div>"
+module.exports = "<h1>\n Photos from your neighbourhood\n</h1>\n\n<app-photo-gallery></app-photo-gallery>"
 
 /***/ }),
 
 /***/ 692:
 /***/ (function(module, exports) {
 
-module.exports = "<div class=\"container photo-gallery\">\n  <!--error-text-->\n  <p class=\"error-text\" *ngIf=\"error\"> {{errorText}}\n    <p>\n      <div class=\"row\">\n        <div *ngFor=\" let photo of photos; let i = index \">\n          <div class=\"col-lg-3 col-md-4 col-sm-6 col-xs-12 photo-item\" *ngIf=\"i < imagesLoaded\">\n            <img (click)=\"showDetail(photo)\" src=\"{{photo.URL_tumb}}\" class=\"center-block \" alt=\" Loading ... \">\n          </div>\n        </div>\n      </div>\n</div>\n\n<app-photo-detail [photo]=\"currentDetail\" (close)=\"closeDetail()\" *ngIf=\"currentDetail\"></app-photo-detail>\n\n<!--loading.. -->\n<div *ngIf='loading' class=\"loading-background\">\n  <p class=\"loading-text\"> Getting photos in your area... </p>\n</div>"
+module.exports = "<div class=\"detail-view\" (click)=\"onClose()\">\n<button type=\"button\" class=\"close\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;</span></button>\n  <img class=\"center-block\" src=\"{{photo.URL_large}}\" alt=\"Loading image...\">\n</div>"
 
 /***/ }),
 
-/***/ 968:
+/***/ 693:
+/***/ (function(module, exports) {
+
+module.exports = "<div class=\"photo-gallery\">\n  <!--error-text-->\n  <p class=\"error-text\" *ngIf=\"error\"> {{errorText}} <p>\n\n      <!--the images-->\n      <div class=\"row\">\n        <div *ngFor=\" let photo of photos; let i = index \">\n          <div class=\"col-lg-3 col-md-4 col-sm-6 col-xs-12 photo-item\" *ngIf=\"i < imagesLoaded\">\n            <img (click)=\"showDetail(photo)\" src=\"{{photo.URL_tumb}}\" class=\"center-block \" alt=\" Loading ... \">\n          </div>\n        </div>\n      </div>\n</div>\n\n<app-photo-detail [photo]=\"currentDetail\" (close)=\"closeDetail()\" *ngIf=\"currentDetail\"></app-photo-detail>\n\n<!--loading.. -->\n<div *ngIf='loading' class=\"loading-background\">\n  <p class=\"loading-text\"> Getting photos in your area... </p>\n</div>"
+
+/***/ }),
+
+/***/ 969:
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(414);
+module.exports = __webpack_require__(415);
 
 
 /***/ })
 
-},[968]);
+},[969]);
 //# sourceMappingURL=main.bundle.js.map

@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <title>CygniHomeTask</title>
-  <base href="/">
+  <base href="/flickr-gallery/">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
@@ -14,55 +14,11 @@
 
 <body>
   <app-root>Loading...</app-root>
-  <script src=" //cdnjs.cloudflare.com/ajax/libs/classlist/2014.01.31/classList.min.js"></script>
-
-<!--  <script src="xhook.js"></script>
--->
- <!-- <script>
-    xhook.before(function (request, callback) {
-      //skip browsers that dont use XDR
-      if (!window.XDomainRequest)
-        return callback();
-      //skip requests that aren't cross domain
-      var url = request.url;
-      var loc = window.location;
-      var hostname = loc.hostname + (loc.port ? ":" + loc.port : "");
-      if (!/^https?:\/\/([^\?\/]+)/.test(url) || RegExp.$1 === hostname)
-        return callback();
-
-      //if not GET, force POST
-      var method = request.method;
-      if (method !== 'GET') method = 'POST';
-      //force same protocol
-      url = url.replace(/^https?:/, loc.protocol);
-      //request!
-      var xdr = new window.XDomainRequest();
-      xdr.timeout = request.timeout;
-      //proxy events
-      var proxy = function (e) {
-        xdr['on' + e] = function () {
-          request.xhr.dispatchEvent(e);
-        };
-      };
-      var events = ['progress', 'timeout', 'error'];
-      for (var i = 0; i < events.length; ++i)
-        proxy(events[i]);
-      //custom onload
-      xdr.onload = function () {
-        callback({
-          status: 200,
-          statusText: "OK",
-          headers: {
-            'Content-Type': xdr.contentType
-          },
-          text: xdr.responseText
-        })
-      };
-      xdr.open(method, url);
-      xdr.send(request.body);
-      return
-    });
-  </script> -->
-<script type="text/javascript" src="inline.bundle.js"></script><script type="text/javascript" src="polyfills.bundle.js"></script><script type="text/javascript" src="styles.bundle.js"></script><script type="text/javascript" src="vendor.bundle.js"></script><script type="text/javascript" src="main.bundle.js"></script></body>
+  <script type="text/javascript" src="inline.bundle.js"></script>
+  <script type="text/javascript" src="polyfills.bundle.js"></script>
+  <script type="text/javascript" src="styles.bundle.js"></script>
+  <script type="text/javascript" src="vendor.bundle.js"></script>
+  <script type="text/javascript" src="main.bundle.js"></script>
+</body>
 
 </html>
