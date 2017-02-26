@@ -133,7 +133,9 @@ var PhotosService = (function () {
         url = this.addQueryParameter(url, 'api_key', FLICKR_API_KEY);
         url = this.addQueryParameter(url, 'format', 'json');
         console.log("postToFlickr");
-        var headers = new __WEBPACK_IMPORTED_MODULE_2__angular_http__["b" /* Headers */]({ 'content-type': 'multipart/form-data' });
+        var headers = new __WEBPACK_IMPORTED_MODULE_2__angular_http__["b" /* Headers */ ]({
+            'content-type': 'text/plain'
+        });
         var ops = new __WEBPACK_IMPORTED_MODULE_2__angular_http__["c" /* RequestOptions */]({ headers: headers });
         return this.http.post(url, {}, ops).toPromise().then(function (res) {
             console.log("res", res);
