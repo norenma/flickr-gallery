@@ -1,10 +1,10 @@
 webpackJsonp([1,4],{
 
-/***/ 334:
+/***/ 344:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__coordinate_model__ = __webpack_require__(516);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__coordinate_model__ = __webpack_require__(523);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(1);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return LocationService; });
 
@@ -41,7 +41,7 @@ var LocationService = (function () {
 
 /***/ }),
 
-/***/ 335:
+/***/ 345:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -64,18 +64,18 @@ var Photo = (function () {
 
 /***/ }),
 
-/***/ 336:
+/***/ 346:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs__ = __webpack_require__(678);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs__ = __webpack_require__(694);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_rxjs__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_http__ = __webpack_require__(316);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_rxjs_add_operator_toPromise__ = __webpack_require__(378);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_http__ = __webpack_require__(326);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_rxjs_add_operator_toPromise__ = __webpack_require__(385);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_rxjs_add_operator_toPromise___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_rxjs_add_operator_toPromise__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__environments_environment__ = __webpack_require__(337);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__location_location_service__ = __webpack_require__(334);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__environments_environment__ = __webpack_require__(347);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__location_location_service__ = __webpack_require__(344);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return PhotosService; });
 
 
@@ -133,9 +133,7 @@ var PhotosService = (function () {
         url = this.addQueryParameter(url, 'api_key', FLICKR_API_KEY);
         url = this.addQueryParameter(url, 'format', 'json');
         console.log("postToFlickr");
-        var headers = new __WEBPACK_IMPORTED_MODULE_2__angular_http__["b" /* Headers */ ]({
-            'content-type': 'text/plain'
-        });
+        var headers = new __WEBPACK_IMPORTED_MODULE_2__angular_http__["b" /* Headers */]({ 'content-type': 'multipart/form-data' });
         var ops = new __WEBPACK_IMPORTED_MODULE_2__angular_http__["c" /* RequestOptions */]({ headers: headers });
         return this.http.post(url, {}, ops).toPromise().then(function (res) {
             console.log("res", res);
@@ -180,7 +178,7 @@ var PhotosService = (function () {
 
 /***/ }),
 
-/***/ 337:
+/***/ 347:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -198,7 +196,7 @@ var environment = {
 
 /***/ }),
 
-/***/ 406:
+/***/ 413:
 /***/ (function(module, exports) {
 
 function webpackEmptyContext(req) {
@@ -207,22 +205,22 @@ function webpackEmptyContext(req) {
 webpackEmptyContext.keys = function() { return []; };
 webpackEmptyContext.resolve = webpackEmptyContext;
 module.exports = webpackEmptyContext;
-webpackEmptyContext.id = 406;
+webpackEmptyContext.id = 413;
 
 
 /***/ }),
 
-/***/ 407:
+/***/ 414:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_platform_browser_dynamic__ = __webpack_require__(494);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ts_helpers__ = __webpack_require__(950);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_platform_browser_dynamic__ = __webpack_require__(501);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ts_helpers__ = __webpack_require__(966);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ts_helpers___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_ts_helpers__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__app_app_module__ = __webpack_require__(515);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__environments_environment__ = __webpack_require__(337);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__app_app_module__ = __webpack_require__(522);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__environments_environment__ = __webpack_require__(347);
 
 
 
@@ -236,7 +234,7 @@ __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__angular_platform_browser_dyna
 
 /***/ }),
 
-/***/ 514:
+/***/ 521:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -250,8 +248,8 @@ var AppComponent = (function () {
     AppComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["U" /* Component */])({
             selector: 'app-root',
-            template: __webpack_require__(674),
-            styles: [__webpack_require__(670)]
+            template: __webpack_require__(690),
+            styles: [__webpack_require__(686)]
         }), 
         __metadata('design:paramtypes', [])
     ], AppComponent);
@@ -261,19 +259,19 @@ var AppComponent = (function () {
 
 /***/ }),
 
-/***/ 515:
+/***/ 522:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__location_location_service__ = __webpack_require__(334);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__photos_photos_service__ = __webpack_require__(336);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_platform_browser__ = __webpack_require__(217);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__location_location_service__ = __webpack_require__(344);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__photos_photos_service__ = __webpack_require__(346);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_platform_browser__ = __webpack_require__(223);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_core__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__angular_forms__ = __webpack_require__(485);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__angular_http__ = __webpack_require__(316);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__app_component__ = __webpack_require__(514);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__photo_gallery_photo_gallery_component__ = __webpack_require__(518);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__photo_detail_photo_detail_component__ = __webpack_require__(517);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__angular_forms__ = __webpack_require__(492);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__angular_http__ = __webpack_require__(326);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__app_component__ = __webpack_require__(521);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__photo_gallery_photo_gallery_component__ = __webpack_require__(525);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__photo_detail_photo_detail_component__ = __webpack_require__(524);
 /* unused harmony export NoXSRFStrategy */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return AppModule; });
 
@@ -319,7 +317,7 @@ var AppModule = (function () {
 
 /***/ }),
 
-/***/ 516:
+/***/ 523:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -333,11 +331,11 @@ var Coordinate = (function () {
 
 /***/ }),
 
-/***/ 517:
+/***/ 524:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__photos_photo_model__ = __webpack_require__(335);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__photos_photo_model__ = __webpack_require__(345);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(1);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return PhotoDetailComponent; });
 
@@ -364,8 +362,8 @@ var PhotoDetailComponent = (function () {
     PhotoDetailComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__angular_core__["U" /* Component */])({
             selector: 'app-photo-detail',
-            template: __webpack_require__(675),
-            styles: [__webpack_require__(671)]
+            template: __webpack_require__(691),
+            styles: [__webpack_require__(687)]
         }), 
         __metadata('design:paramtypes', [])
     ], PhotoDetailComponent);
@@ -376,13 +374,13 @@ var PhotoDetailComponent = (function () {
 
 /***/ }),
 
-/***/ 518:
+/***/ 525:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__photos_photo_model__ = __webpack_require__(335);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__photos_photo_model__ = __webpack_require__(345);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__photos_photos_service__ = __webpack_require__(336);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__photos_photos_service__ = __webpack_require__(346);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return PhotoGalleryComponent; });
 
 
@@ -452,8 +450,8 @@ var PhotoGalleryComponent = (function () {
     PhotoGalleryComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__angular_core__["U" /* Component */])({
             selector: 'app-photo-gallery',
-            template: __webpack_require__(676),
-            styles: [__webpack_require__(672)]
+            template: __webpack_require__(692),
+            styles: [__webpack_require__(688)]
         }), 
         __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_2__photos_photos_service__["a" /* PhotosService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__photos_photos_service__["a" /* PhotosService */]) === 'function' && _a) || Object])
     ], PhotoGalleryComponent);
@@ -464,10 +462,10 @@ var PhotoGalleryComponent = (function () {
 
 /***/ }),
 
-/***/ 670:
+/***/ 686:
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(114)();
+exports = module.exports = __webpack_require__(121)();
 // imports
 
 
@@ -482,10 +480,10 @@ module.exports = module.exports.toString();
 
 /***/ }),
 
-/***/ 671:
+/***/ 687:
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(114)();
+exports = module.exports = __webpack_require__(121)();
 // imports
 
 
@@ -500,10 +498,10 @@ module.exports = module.exports.toString();
 
 /***/ }),
 
-/***/ 672:
+/***/ 688:
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(114)();
+exports = module.exports = __webpack_require__(121)();
 // imports
 
 
@@ -518,34 +516,34 @@ module.exports = module.exports.toString();
 
 /***/ }),
 
-/***/ 674:
+/***/ 690:
 /***/ (function(module, exports) {
 
 module.exports = "<h1>\n  Photos from your neighborhood\n</h1>\n\n<app-photo-gallery></app-photo-gallery>"
 
 /***/ }),
 
-/***/ 675:
+/***/ 691:
 /***/ (function(module, exports) {
 
 module.exports = "<div class=\"detail-view\" (click)=\"onClose()\">\n<button type=\"button\" class=\"close\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;</span></button>\n  <img class=\"center-block\" src=\"{{photo.URL_large}}\" alt=\"Loading image...\">\n</div>"
 
 /***/ }),
 
-/***/ 676:
+/***/ 692:
 /***/ (function(module, exports) {
 
 module.exports = "<div class=\"container photo-gallery\">\n  <!--error-text-->\n  <p class=\"error-text\" *ngIf=\"error\"> {{errorText}}\n    <p>\n      <div class=\"row\">\n        <div *ngFor=\" let photo of photos; let i = index \">\n          <div class=\"col-lg-3 col-md-4 col-sm-6 col-xs-12 photo-item\" *ngIf=\"i < imagesLoaded\">\n            <img (click)=\"showDetail(photo)\" src=\"{{photo.URL_tumb}}\" class=\"center-block \" alt=\" Loading ... \">\n          </div>\n        </div>\n      </div>\n</div>\n\n<app-photo-detail [photo]=\"currentDetail\" (close)=\"closeDetail()\" *ngIf=\"currentDetail\"></app-photo-detail>\n\n<!--loading.. -->\n<div *ngIf='loading' class=\"loading-background\">\n  <p class=\"loading-text\"> Getting photos in your area... </p>\n</div>"
 
 /***/ }),
 
-/***/ 952:
+/***/ 968:
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(407);
+module.exports = __webpack_require__(414);
 
 
 /***/ })
 
-},[952]);
+},[968]);
 //# sourceMappingURL=main.bundle.js.map
